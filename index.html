@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bloques</title>
+
+<style>
+* { box-sizing: border-box; }
+
+:raíz {
+--skin: #36c96b;
+--skin-light: #a8ffbd;
+--piel oscura: #16783b;
+--textura de la piel:
+gradiente lineal repetitivo(
+135 grados,
+transparente 0 7px,
+#ffffff27 7px 9px
+);
+}
+
+cuerpo {
+margen: 0;
+altura mínima: 100vh;
+mostrar: cuadrícula;
+elementos de lugar: centro;
+relleno: 16px;
+fondo: gradiente radial (elipse en la parte superior, #1e3150 0%, #101827 65%);
+color: #f5f8ff;
+font-family: system-ui, sans-serif;
+}
+
+principal {
+ancho: min(94vw, 440px);
+alineación de texto: centro;
+}
+
+h1 { margen: 8px 0 12px; espaciado entre letras: .5px; }
+
+#skins {
+posición: relativa;
+ancho: ajustar-contenido;
+margen: 0 auto 12px;
+}
+
+botón {
+margen superior: 10px;
+relleno: 9px 18px;
+borde: 0;
+radio de borde: 9px;
+color: blanco;
+fondo: #385577;
+tamaño de fuente: 1rem;
+grosor de fuente: 600;
+cursor: puntero;
+}
+
+botón:hover { filtro: brillo(1.15); }
+botón:activo { transformar: escala(.98); }
+#skins-button { margin: 0; padding: 9px 17px; }
+
+#menú-de-piel {
+mostrar: ninguno;
+posición: absoluta;
+índice z: 20;
+superior: calc(100% + 7px);
+izquierda: 50%;
+transformar: trasladarX(-50%);
+ancho mínimo: 190px;
+relleno: 8px;
+borde: 1px sólido #ffffff22;
+radio de borde: 12px;
+fondo: #202e43;
+box-shadow: 0 12px 30px #0008;
+}
+
+#skin-menu.open { display: grid; gap: 5px; }
+
+.opción-de-piel {
+pantalla: flexible;
+alinear-elementos: centro;
+espacio: 10px;
+ancho: 100%;
+margen: 0;
+relleno: 8px 10px;
+borde: 0;
+radio de borde: 7px;
+fondo: transparente;
+alineación de texto: izquierda;
+tamaño de fuente: .95rem;
+}
+
+.skin-option:hover { background: #ffffff16; }
+
+.swatch {
+ancho: 22px;
+altura: 22px;
+flex: 0 0 22px;
+borde: 1px sólido #ffffff70;
+radio de borde: 6px;
+color de fondo: var(--skin);
+imagen de fondo:
+var(--textura-piel),
+gradiente lineal (145 grados, var (--piel-clara), var (--piel) 48%, var (--piel-oscura));
+box-shadow: inset 0 1px 2px #ffffff77, inset 0 -2px 4px #0005;
+}
+
+#puntaje {
+margen inferior: 14px;
+tamaño de fuente: 1,15rem;
+grosor de fuente: 600;
+}
+
+#junta {
+mostrar: cuadrícula;
+columnas-de-plantilla-de-cuadrícula: repetir(10, 1fr);
+espacio: 4px;
+relleno: 7px;
+borde: 1px sólido #ffffff15;
+radio de borde: 13px;
+fondo: #263449;
+box-shadow: 0 10px 24px #0003;
+acción táctil: ninguna;
+}
+
+.celúla {
+relación de aspecto: 1;
+ancho mínimo: 0;
+radio de borde: 5px;
+fondo: #172336;
+box-shadow: inset 0 1px 2px #0003;
+}
+
+.celda.llena,
+.pieza-célula,
+.celda-de-vista-previa {
+color de fondo: var(--skin);
+imagen de fondo:
+var(--textura-piel),
+gradiente lineal (145 grados, var (--piel-clara), var (--piel) 45%, var (--piel-oscura));
+borde: 1px sólido #ffffff35;
+sombra de caja:
+inset 0 1px 2px #ffffff66,
+inset 0 -3px 5px #0004,
+0 2px 4px #0003;
+}
+
+.pieza-célula,
+.celda-de-vista-previa {
+posición: relativa;
+desbordamiento: oculto;
+imagen de fondo:
+gradiente lineal repetitivo(
+0 grados,
+#ffffff14 0 1px,
+transparente 1px 3px
+),
+gradiente lineal repetitivo(
+90 grados,
+#00000013 0 1px,
+transparente 1px 3px
+),
+var(--textura-piel),
+gradiente lineal (145 grados, var (--piel-clara), var (--piel) 45%, var (--piel-oscura));
+sombra de caja:
+inset 0 1px 2px #ffffff70,
+inset 1px 0 2px #ffffff25,
+inset 0 -3px 5px #0005,
+0 2px 4px #0003;
+}
+
+#piezas {
+pantalla: flexible;
+justificar-contenido: espacio-alrededor;
+alinear-elementos: centro;
+espacio: 8px;
+altura mínima: 125px;
+margen superior: 14px;
+}
+
+.pedazo {
+mostrar: cuadrícula;
+espacio: 4px;
+relleno: 8px;
+radio de borde: 9px;
+cursor: agarrar;
+acción táctil: ninguna;
+selección del usuario: ninguna;
+-webkit-user-select: ninguno;
+}
+
+.piece:active { cursor: grabing; }
+
+.piece.selected {
+contorno: 2px sólido #ffffffcc;
+fondo: #ffffff0b;
+}
+
+.pieza-célula,
+.celda-de-vista-previa {
+ancho: 27px;
+altura: 27px;
+radio de borde: 6px;
+eventos de puntero: ninguno;
+}
+
+#mensaje {
+altura mínima: 24px;
+color: #ffd166;
+tamaño de fuente: .95rem;
+}
+
+#drag-preview {
+posición: fija;
+índice z: 15;
+mostrar: ninguno;
+relleno: 0;
+fondo: transparente;
+eventos de puntero: ninguno;
+filtro: drop-shadow(0 7px 8px #0008);
+}
+
+#drag-preview.visible { display: grid; }
+#reiniciar { fondo: #385577; }
+
+#efectos {
+posición: fija;
+recuadro: 0;
+índice z: 50;
+eventos de puntero: ninguno;
+desbordamiento: oculto;
+}
+
+.granada {
+posición: fija;
+índice z: 52;
+ancho: 32px;
+altura: 38px;
+tamaño de fuente: 30px;
+altura de línea: 38px;
+alineación de texto: centro;
+transformar: traducir(-50%, -50%);
+animación: caída de granada .62s suave hacia adelante;
+}
+
+.explosión {
+posición: fija;
+índice z: 51;
+altura: 42px;
+radio de borde: 50%;
+eventos de puntero: ninguno;
+fondo: gradiente radial(
+elipse,
+#fff9a6 0 12%,
+#ffb000 30%,
+#ff4b13 60%,
+transparente 72%
+);
+animación: row-explosion .38s ease-out .62s forwards;
+}
+
+@keyframes caída de granada {
+0% { transformar: trasladar(-50%, -180px) rotar(-25deg); }
+75% { transformar: trasladar(-50%, 0) rotar(15 grados); }
+88% { transformar: trasladar(-50%, -12px) rotar(-8deg); }
+100% { transformar: trasladar(-50%, 0) rotar(0 grados); }
+}
+
+@keyframes row-explosion {
+0% {
+opacidad: 1;
+transformar: escalaX(.15) escalaY(.5);
+filtro: brillo(1);
+}
+55% {
+opacidad: 1;
+transformación: escalaX(1.08) escalaY(1.4);
+filtro: brillo(1.8);
+}
+100% {
+opacidad: 0;
+transformar: escalaX(1.2) escalaY(.8);
+filtro: brillo(1);
+}
+}
+
+@media (max-width: 360px) {
+.piece-cell, .preview-cell {
+ancho: 23px;
+altura: 23px;
+}
+#piezas { espacio: 2px; }
+.piece { padding: 5px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+.granada, .explosión {
+duración de la animación: 1 ms;
+retardo de animación: 0 ms;
+}
+}
+</style>
+</head>
+
+<cuerpo>
+<principal>
+<h1>Bloques</h1>
+
+<div id="skins">
+<button id="skins-button" type="button" aria-expanded="false">Skins ▾</button>
+<div id="skin-menu"></div>
+</div>
+
+<div id="score">Puntos: <span id="points">0</span></div>
+<div id="board" aria-label="Tablero de juego"></div>
+<div id="piezas" aria-label="Piezas disponibles"></div>
+<div id="message" aria-live="polite"></div>
+<button id="restart" type="button">Reiniciar</button>
+</main>
+
+<div id="drag-preview" aria-hidden="true"></div>
+<div id="effects" aria-hidden="true"></div>
+
+<script>
+const TAMAÑO = 10;
+const FILA_BONUS = 20;
+const BOARD_GAP = 4;
+
+const PIEL = [
+{
+nombre: "Verde",
+color: "#36c96b",
+luz: "#a8ffbd",
+oscuro: "#16783b",
+textura: "gradiente lineal repetitivo(135 grados, transparente 0 7px, #ffffff27 7px 9px)"
+},
+{
+nombre: "Azul",
+color: "#258be8",
+luz: "#9cddff",
+oscuro: "#164a9a",
+textura: "gradiente lineal repetitivo(45 grados, transparente 0 7px, #ffffff28 7px 9px)"
+},
+{
+nombre: "Verde agua",
+color: "#20cbb5",
+luz: "#9effe8",
+oscuro: "#087d78",
+textura: "gradiente lineal repetitivo(135 grados, transparente 0 5px, #ffffff25 5px 7px)"
+},
+{
+nombre: "Rojo",
+color: "#ed3d52",
+luz: "#ffb0a8",
+oscuro: "#941e39",
+textura: "gradiente lineal repetitivo(45 grados, transparente 0 8px, #ffffff28 8px 10px)"
+},
+{
+nombre: "Naranja",
+color: "#f47b20",
+luz: "#ffd18a",
+oscuro: "#a94014",
+textura: "gradiente lineal repetitivo(135 grados, transparente 0 6px, #ffffff28 6px 8px)"
+},
+{
+nombre: "Arcoíris",
+color: "#8c55e8",
+luz: "#ff89d1",
+oscuro: "#246de5",
+textura: "gradiente-lineal(120 grados, #ff4d6d, #ffbd35, #4de08b, #38bdf8, #a855f7)"
+},
+{
+nombre: "Fuego",
+color: "#f04b19",
+luz: "#fff48a",
+oscuro: "#9c1425",
+textura: "gradiente lineal repetitivo(115 grados, #ffd54a 0 4px, #ff7a1a 4px 8px, #ed321e 8px 12px)"
+}
+];
+
+const FORMAS = [
+[[0,0]],
+[[0,0],[0,1]],
+[[0,0],[0,1],[0,2]],
+[[0,0],[1,0],[1,1]],
+[[0,0],[0,1],[1,0],[1,1]],
+[[0,0],[1,0],[2,0],[3,0]],
+[[0,0],[0,1],[0,2],[0,3]],
+[[0,0],[1,0],[2,0],[2,1]],
+[[0,1],[1,0],[1,1],[1,2]],
+[[0,0],[0,1],[0,2],[1,1],[2,1]],
+[[0,0],[1,0],[2,0],[3,0],[4,0]],
+[[0,0],[0,1],[0,2],[0,3],[0,4]]
+];
+
+const boardEl = document.querySelector("#board");
+const piecesEl = document.querySelector("#pieces");
+const pointsEl = document.querySelector("#points");
+const messageEl = document.querySelector("#message");
+const skinsButton = document.querySelector("#skins-button");
+const skinMenu = document.querySelector("#skin-menu");
+const dragPreview = document.querySelector("#drag-preview");
+const effectsEl = document.querySelector("#effects");
+
+dejar la mesa;
+dejar piezas;
+dejar puntuación;
+sea ​​seleccionado = nulo;
+let activeSkin = SKINS[0];
+sea ​​arrastrando = nulo;
+sea ​​pieceCellSize = 27;
+sea ​​pieceGap = 4;
+let dragOffset = { fila: 0, columna: 0 };
+
+función applySkin(elemento, skin) {
+elemento.style.setProperty("--skin", skin.color);
+elemento.style.setProperty("--skin-light", skin.light);
+elemento.style.setProperty("--skin-dark", skin.dark);
+elemento.style.setProperty("--skin-texture", skin.texture);
+}
+
+función buildSkinMenu() {
+skinMenu.innerHTML = "";
+
+PIEL.forEach(piel => {
+const option = document.createElement("button");
+opción.className = "opción-de-piel";
+opción.tipo = "botón";
+
+const swatch = document.createElement("span");
+swatch.className = "swatch";
+aplicarPiel(muestra, piel);
+
+const label = document.createElement("span");
+etiqueta.textContent = skin.name ;
+
+opción.append(muestra, etiqueta);
+opción.addEventListener("click", () => {
+piel activa = piel;
+
+piezas.forEach(pieza => {
+si (pieza) pieza.piel = piel;
+});
+
+tablero.forEach(fila => fila.forEach(bloque => {
+si (bloque) bloque.piel = piel;
+}));
+
+skinMenu.classList.remove("abrir");
+skinsButton.setAttribute("aria-expanded", "false");
+prestar();
+});
+
+skinMenu.appendChild(opción);
+});
+}
+
+skinsButton.addEventListener("click", () => {
+const isOpen = skinMenu.classList.toggle("open");
+skinsButton.setAttribute("aria-expanded", String(isOpen));
+});
+
+document.addEventListener("click", event => {
+if (!document.querySelector("#skins").contains(event.target)) {
+skinMenu.classList.remove("abrir");
+skinsButton.setAttribute("aria-expanded", "false");
+}
+});
+
+función newPiece() {
+devolver {
+forma: SHAPES[Math.floor(Math.random() * SHAPES.length)],
+piel: piel activa
+};
+}
+
+función startGame() {
+tablero = Array.from({ longitud: TAMAÑO }, () => Array(TAMAÑO).fill(null));
+piezas = [nuevaPieza(), nuevaPieza(), nuevaPieza()];
+puntuación = 0;
+seleccionado = nulo;
+arrastrando = nulo;
+mensajeEl.textContent = "";
+ocultarVistaPrevia();
+effectsEl.innerHTML = "";
+prestar();
+}
+
+función render() {
+puntosEl.textContent = puntuación;
+boardEl.innerHTML = "";
+
+tablero.forEach((fila, r) ​​=> fila.forEach((bloque, c) => {
+const cell = document.createElement("div");
+cell.className = "cell";
+celda.conjunto.fila = r;
+celda.conjunto.columna = c;
+
+si (bloque) {
+celda.classList.add("lleno");
+aplicarPiel(célula, bloque.piel);
+}
+
+celda.addEventListener("click", () => {
+si (!arrastrando) colocarPieza(r, c);
+});
+
+boardEl.appendChild(cell);
+}));
+
+piezasEl.innerHTML = "";
+
+piezas.forEach((pieza, índice) => {
+si (!pieza) {
+const empty = document.createElement("div");
+empty.style.width = "80px";
+piezasEl.appendChild(vacío);
+devolver;
+}
+
+const maxR = Math.max(...piece.shape.map(([r]) => r)) + 1;
+const maxC = Math.max(...piece.shape.map(([, c]) => c)) + 1;
+const el = document.createElement("div");
+
+el.className = "piece" + (selected === index ? " selected" : "");
+el.style.gridTemplateColumns = `repeat(${maxC}, 27px)`;
+el.dataset.index = índice;
+
+el.addEventListener("pointerdown", event => {
+Si (event.button !== undefined && event.button !== 0) regresar;
+si (!pieces[index]) regresar;
+
+evento.preventDefault();
+
+const firstCell = el.querySelector(".piece-cell");
+pieceCellSize = firstCell.getBoundingClientRect().width;
+pieceGap = parseFloat(getComputedStyle(el).gap) || 4;
+
+const rect = el.getBoundingClientRect();
+const style = getComputedStyle(el);
+const paddingLeft = parseFloat(style.paddingLeft) || 0;
+const paddingTop = parseFloat(style.paddingTop) || 0;
+const localX = event.clientX - rect.left - paddingLeft;
+const localY = event.clientY - rect.top - paddingTop;
+const pieceStep = pieceCellSize + pieceGap;
+
+let col = Math.floor(localX / pieceStep);
+let fila = Math.floor(localY / pieceStep);
+
+if (!piece.shape.some(([r, c]) => r === row && c === col)) {
+const nearest = piece.shape.reduce((best, square) => {
+const [r, c] = cuadrado;
+const dx = c * pieceStep + pieceCellSize / 2 - localX;
+const dy = r * pieceStep + pieceCellSize / 2 - localY;
+const distancia = dx * dx + dy * dy;
+devolver distancia < mejor.distancia ? { cuadrado, distancia } : mejor;
+}, { cuadrado: pieza.forma[0], distancia: infinito });
+
+[fila, columna] = cuadrado más cercano;
+}
+
+dragOffset = { fila, columna };
+seleccionado = índice;
+arrastrando = { índice };
+mostrarVistaPrevia(pieza, evento.clienteX, evento.clienteY);
+messageEl.textContent = "Arrastra la pieza hasta el tablero";
+});
+
+para (sea r = 0; r < maxR; r++) {
+para (sea c = 0; c < maxC; c++) {
+const cuadrado = document.createElement("div");
+cuadrado.className = "piece-cell";
+
+if (piece.shape.some(([pr, pc]) => pr === r && pc === c)) {
+aplicarPiel(cuadrado, pieza.piel);
+} demás {
+cuadrado.estilo.visibilidad = "oculto";
+}
+
+el.appendChild(cuadrado);
+}
+}
+
+piezasEl.appendChild(el);
+});
+}
+
+función mostrarVistaPrevia(pieza, x, y) {
+const maxR = Math.max(...piece.shape.map(([r]) => r)) + 1;
+const maxC = Math.max(...piece.shape.map(([, c]) => c)) + 1;
+
+dragPreview.innerHTML = "";
+dragPreview.style.gridTemplateColumns =
+`repetir(${maxC}, ${pieceCellSize}px)`;
+dragPreview.style.gridAutoRows = `${pieceCellSize}px`;
+dragPreview.style.gap = `${pieceGap}px`;
+
+para (sea r = 0; r < maxR; r++) {
+para (sea c = 0; c < maxC; c++) {
+const cuadrado = document.createElement("div");
+cuadrado.className = "celda de vista previa";
+cuadrado.estilo.ancho = `${pieceCellSize}px`;
+cuadrado.estilo.altura = `${pieceCellSize}px`;
+
+if (piece.shape.some(([pr, pc]) => pr === r && pc === c)) {
+aplicarPiel(cuadrado, pieza.piel);
+} demás {
+cuadrado.estilo.visibilidad = "oculto";
+}
+
+dragPreview.appendChild(cuadrado);
+}
+}
+
+dragPreview.classList.add("visible");
+movePreview(x, y);
+}
+
+función movePreview(x, y) {
+const paso = tamañoCeldaPieza + espacioPieza;
+const offsetX = dragOffset.col * step + pieceCellSize / 2;
+const offsetY = dragOffset.row * step + pieceCellSize / 2;
+
+dragPreview.style.left = `${x - offsetX}px`;
+dragPreview.style.top = `${y - offsetY}px`;
+}
+
+función hidePreview() {
+dragPreview.classList.remove("visible");
+}
+
+document.addEventListener("pointermove", event => {
+si (arrastrando) movePreview(evento.clientX, evento.clientY);
+});
+
+document.addEventListener("pointerup", event => {
+si (!arrastrando) regresar;
+
+const pieceIndex = dragging.index;
+const pieza = piezas[índice de pieza];
+
+// Usa la casilla que realmente está bajo el punto de agarre.
+const target = document.elementFromPoint(event.clientX, event.clientY);
+const cell = target?.closest(".cell");
+
+ocultarVistaPrevia();
+arrastrando = nulo;
+
+si (!celda || !pieza) {
+prestar();
+mensajeEl.textContent = "";
+devolver;
+}
+
+const rowUnderPointer = Number(cell.dataset.row);
+const colUnderPointer = Number(cell.dataset.col);
+
+const fila = filaDebajoDelPuntero - desplazamientoDeArrastre.fila;
+const col = colUnderPointer - dragOffset.col;
+
+colocarPieza(fila, columna, índice de pieza);
+});
+
+función canPlace(pieza, fila, columna) {
+devolver pieza.forma.cada(([r, c]) =>
+fila + r >= 0 &&
+col + c >= 0 &&
+fila + r < TAMAÑO &&
+col + c < TAMAÑO &&
+!tablero[fila + r][columna + c]
+);
+}
+
+función animateCompletedRows(rows) {
+Si (!rows.length) regresar;
+
+const cells = [...boardEl.querySelectorAll(".cell")];
+const animaciones = [];
+
+filas.forEach(fila => {
+const rowCells = celdas
+.filter(cell => Number(cell.dataset.row) === row)
+.sort((a, b) => Number(a.dataset.col) - Number(b.dataset.col));
+
+Si (!rowCells.length) regresar;
+
+const first = rowCells[0].getBoundingClientRect();
+const last = rowCells[rowCells.length - 1].getBoundingClientRect();
+const centroX = (primero.izquierdo + último.derecho) / 2;
+const centroY = (primero.superior + primero.inferior) / 2;
+
+const granada = document.createElement("div");
+granada.className = "granada";
+granada.textContent = "💣";
+granada.style.left = `${centerX}px`;
+granada.style.top = `${centerY}px`;
+
+const explosión = document.createElement("div");
+explosión.className = "explosión";
+explosión.style.left = `${first.left}px`;
+explosión.style.top = `${centerY - 21}px`;
+explosión.style.width = `${last.right - first.left}px`;
+
+efectosEl.append(granada, explosión);
+animaciones.empujar({ granada, explosión });
+});
+
+setTimeout(() => {
+animaciones.forEach(({ granada, explosión }) => {
+granada.eliminar();
+explosión.remove();
+});
+}, 1100);
+}
+
+función placePiece(fila, columna, pieceIndex = seleccionado) {
+si (pieceIndex === null || !pieces[pieceIndex]) {
+messageEl.textContent = "Arrastra una pieza al tablero";
+devolver;
+}
+
+const pieza = piezas[índice de pieza];
+
+Si (!canPlace(piece, row, col)) {
+seleccionado = nulo;
+prestar();
+messageEl.textContent = "Esa pieza no cabe ahí";
+devolver;
+}
+
+para (const [r, c] de pieza.forma) {
+tablero[fila + r][columna + c] = { piel: pieza.piel };
+}
+
+piezas[índice de piezas] = nulo;
+seleccionado = nulo;
+
+const fullRows = tablero
+.map((línea, r) ​​=> línea.every(Boolean) ? r : -1)
+.filter(r => r !== -1);
+
+const fullCols = Array.from({ length: SIZE }, (_, c) =>
+tablero.cada(fila => fila[c]) ? c : -1
+).filter(c => c !== -1);
+
+animateCompletedRows(fullRows);
+
+para (const r de fullRows) board[r].fill(null);
+para (constante c de fullCols) {
+para (sea r = 0; r < TAMAÑO; r++) tablero[r][c] = nulo;
+}
+
+puntuación += longitud.forma.pieza;
+puntuación += fullRows.length * ROW_BONUS;
+puntuación += longitudColleccionesCompletas * TAMAÑO;
+
+si (pieces.every(piece => piece === null)) {
+piezas = [nuevaPieza(), nuevaPieza(), nuevaPieza()];
+}
+
+prestar();
+
+mensajeEl.textContent = tieneAnyMove()
+? ""
+: "¡Fin del juego! Pulsa Reiniciar para volver a jugar.";
+}
+
+función hasAnyMove() {
+devolver piezas.alguna(pieza => pieza &&
+tablero.alguna((fila, r) ​​=>
+fila.some((_, c) => canPlace(piece, r, c))
+)
+);
+}
+
+document.querySelector("#restart").addEventListener("click", startGame);
+
+construirMenúDePiel();
+iniciarJuego();
+</script>
+</body>
+</html>
